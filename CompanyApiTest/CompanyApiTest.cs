@@ -73,7 +73,7 @@ namespace CompanyApiTest
         public async Task Should_return_list_of_companies_with_status_200_when_get_all_companies_given_nothing()
         {
             await ClearDataAsync();
-            Company companyGiven = new Company("BlueSky");
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("BlueSky");
             await httpClient.PostAsJsonAsync("api/companies", companyGiven);
 
             HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies");
@@ -83,6 +83,35 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
             Assert.Equal(companyGiven.Name, result[0].Name);
         }
+
+        [Fact]
+        public async Task Should_return_company_name_with_status_200_when_find_company_given_companyID()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("BlueSky");
+            var company = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
+            var result = await company.Content.ReadFromJsonAsync<Company>();
+
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies/" + result.Id);
+
+
+
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
+            Assert.Equal("BlueSky", result.Name);
+        }
+
+        [Fact]
+        public async Task Should_return_not_found_with_status_404_when_not_find_company_given_companyID()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("BlueSky");
+            var company = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
+            var result = await company.Content.ReadFromJsonAsync<Company>();
+
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies/" + "sss");
+            Assert.Equal(HttpStatusCode.NotFound, httpResponseMessage.StatusCode);
+        }
+
 
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
