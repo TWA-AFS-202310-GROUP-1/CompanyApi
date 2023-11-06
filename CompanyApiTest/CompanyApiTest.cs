@@ -189,5 +189,57 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.OK, httpResponseMessage2.StatusCode);
             Assert.Equal(newCompany.Name, company2.Name);
         }
+
+        [Fact]
+        public async Task Should_return_employee_with_status_201_when_create_employee_given_company_id_and_employee_info()
+        {
+            // Given
+            await ClearDataAsync();
+            var companyGiven = new CreateCompanyRequest
+            {
+                Name = "Company 1"
+            };
+            var httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+            var companyCreated = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+            Assert.NotNull(companyCreated);
+            Assert.NotNull(companyCreated.Id);
+            var employeeGiven = new CreateEmployeeRequest
+            {
+                Name = "Peter",
+                Salary = 5000,
+                CompanyId = companyCreated.Id
+            };
+
+            // When
+            httpResponseMessage = await httpClient.PostAsJsonAsync($"/api/companies/{companyCreated.Id}/employees", employeeGiven);
+
+            // Then
+            Assert.Equal(HttpStatusCode.Created, httpResponseMessage.StatusCode);
+            var employeeCreated = await httpResponseMessage.Content.ReadFromJsonAsync<Employee>();
+            Assert.NotNull(employeeCreated);
+            Assert.NotNull(employeeCreated.Id);
+            Assert.Equal(employeeGiven.Name, employeeCreated.Name);
+            Assert.Equal(employeeGiven.Salary, employeeCreated.Salary);
+            Assert.Equal(companyCreated.Id, employeeCreated.CompanyId);
+        }
+
+        [Fact]
+        public async Task Should_return_404_when_create_employee_given_fake_company_id()
+        {
+            // Given
+            await ClearDataAsync();
+            var employeeGiven = new CreateEmployeeRequest
+            {
+                Name = "Peter",
+                Salary = 5000,
+                CompanyId = Guid.NewGuid().ToString()
+            };
+
+            // When
+            var httpResponseMessage = await httpClient.PostAsJsonAsync($"/api/companies/{employeeGiven.CompanyId}/employees", employeeGiven);
+
+            // Then
+            Assert.Equal(HttpStatusCode.NotFound, httpResponseMessage.StatusCode);
+        }
     }
 }
