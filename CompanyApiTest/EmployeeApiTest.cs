@@ -96,6 +96,25 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
         }
 
+        [Fact]
+        public async Task Should_delete_fail_when_employee_not_found()
+        {
+            // Given
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Google");
+            CreateEmployeeRequest employeeGiven = new CreateEmployeeRequest("Jack");
+
+            // When
+            HttpResponseMessage httpResponseMessageCompany = await httpClient.PostAsJsonAsync<CreateCompanyRequest>("/api/companies", companyGiven);
+            Company companyPost = await DeserializeTo<Company>(httpResponseMessageCompany);
+            HttpResponseMessage httpResponseMessageEmployee = await httpClient.PostAsJsonAsync($"/api/companies/{companyPost.Id}/employees", employeeGiven);
+            Employee employeeReceived = await DeserializeTo<Employee>(httpResponseMessageEmployee);
+            HttpResponseMessage httpResponseMessage = await httpClient.DeleteAsync($"/api/companies/{companyPost.Id}/employees/{employeeReceived.Id}new");
+
+            // Then
+            Assert.Equal(HttpStatusCode.NotFound, httpResponseMessage.StatusCode);
+        }
+
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
             string response = await httpResponseMessage.Content.ReadAsStringAsync();
