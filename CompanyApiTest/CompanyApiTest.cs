@@ -220,6 +220,29 @@ namespace CompanyApiTest
             Assert.Null(deletedEmployee);
         }
 
+        [Fact]
+        public async Task Should_return_list_of_employees_by_company_with_status_200()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Apple");
+            var companyResponse = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
+            var company = await companyResponse.Content.ReadFromJsonAsync<Company>();
+
+            var employeeRequest = new EmployeeRequest
+            {
+                Name = "wx",
+                Salary = 1000,
+                CompanyId = company.Id
+            };
+
+            await httpClient.PostAsJsonAsync($"/api/companies/{company.Id}/employees", employeeRequest);
+            var response2 = await httpClient.GetAsync($"/api/companies/{company.Id}/employees");
+            Assert.Equal(HttpStatusCode.OK, response2.StatusCode);
+            var employees = await response2.Content.ReadFromJsonAsync<List<Employee>>();
+            Assert.NotNull(employees);
+            Assert.NotEmpty(employees);
+        }
+
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
             string response = await httpResponseMessage.Content.ReadAsStringAsync();

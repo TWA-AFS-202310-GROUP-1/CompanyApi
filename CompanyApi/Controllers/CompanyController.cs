@@ -96,5 +96,17 @@ namespace CompanyApi.Controllers
             return NoContent();
         }
 
+        [HttpGet("{companyID}/employees")]
+        public IActionResult GetEmployeesByCompany(string companyID)
+        {
+            var company = companies.FirstOrDefault(c => c.Id == companyID);
+            if (company == null)
+            {
+                return NotFound("Company Not Found");
+            }
+            var employees = company.Employees.ToList();
+            return Ok(employees); 
+        }
+
     }
 }
