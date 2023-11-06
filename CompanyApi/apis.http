@@ -59,3 +59,72 @@ Content-Type: application/json; charset=utf-8
 ### Case2: 404 Company NOT Found
 
 ######################################################################################
+
+# Employee APIS
+## POST /api/Companies/{companyID}
+## DELETE /api/Companies/{companyID}/Employees/{employeeID}
+## GET /api/Companies/{companyID}
+## PUT /api/Companies/{companyID}/Employees/{employeeID}
+## DELETE /api/Companies/{companyID}
+
+
+## AC6 Add Employee To A Company API 
+POST https://{{hostname}}:{{port}}/api/companies/{companyID}
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "Amy",
+  "salary": 10
+}
+
+## Response:
+### Case1:  Employee Created Success, Return Employee created with Status Created( 201 )
+### Case2:  Employee Name Exsiting, Return 400 Bad request
+### Case3:  404, Company NOT Found
+### Case4:  Other Bad Reqeust ( Request Body Not Valid )
+
+######################################################################################
+
+## AC7 Delete Specific Employee Under Specific Company API 
+DELETE https://{{hostname}}:{{port}}/api/companies/{companyID}/Employees/{employeeID}
+
+## Response:
+### Case1:  Success, 204 No Content
+### Case2:  404 Company NOT Found
+### Case3:  404 Employee NOT Found
+
+######################################################################################
+
+## AC8 Get All Employee In A Company API 
+GET https://{{hostname}}:{{port}}/api/companies/{companyID}
+
+## Response:
+### Case1:  OK 200 with List of Employees
+### Case2:  404 Company NOT Found
+
+######################################################################################
+
+## AC9 Update Employee API 
+PUT https://{{hostname}}:{{port}}/api/companies/{companyID}/Employees/{employeeID}
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "Emily",
+  "salary": 20
+}
+
+## Response:
+### Case1:  Sucess, 200 Update Successfully
+### Case2:  404 Company NOT Found
+### Case3:  404 Employee NOT Found
+
+######################################################################################
+
+## AC10 Delete All Employee API 
+DELETE https://{{hostname}}:{{port}}/api/companies/{companyID}
+
+## Response:
+### Case1:  Success, 204 No Content
+### Case2:  404 Company NOT Found
+
+######################################################################################
