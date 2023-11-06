@@ -24,13 +24,13 @@ namespace CompanyApiTest
             // Given
             await ClearDataAsync();
             CreateCompanyRequest companyGiven = new CreateCompanyRequest("BlueSky Digital Media");
-            
+
             // When
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(
-                "/api/companies", 
+                "/api/companies",
                 SerializeObjectToContent(companyGiven)
             );
-           
+
             // Then
             Assert.Equal(HttpStatusCode.Created, httpResponseMessage.StatusCode);
             Company? companyCreated = await DeserializeTo<Company>(httpResponseMessage);
@@ -49,7 +49,7 @@ namespace CompanyApiTest
             // When
             await httpClient.PostAsync("/api/companies", SerializeObjectToContent(companyGiven));
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(
-                "/api/companies", 
+                "/api/companies",
                 SerializeObjectToContent(companyGiven)
             );
             // Then
@@ -62,10 +62,10 @@ namespace CompanyApiTest
             // Given
             await ClearDataAsync();
             StringContent content = new StringContent("{\"unknownField\": \"BlueSky Digital Media\"}", Encoding.UTF8, "application/json");
-          
+
             // When
             HttpResponseMessage httpResponseMessage = await httpClient.PostAsync("/api/companies", content);
-           
+
             // Then
             Assert.Equal(HttpStatusCode.BadRequest, httpResponseMessage.StatusCode);
         }
@@ -135,19 +135,46 @@ namespace CompanyApiTest
             int pageSize = 2;
             int pageIndex = 0;
 
-            for(int i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
             {
                 CreateCompanyRequest companyGiven = new CreateCompanyRequest($"Company{i}");
                 await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
             }
 
-            HttpResponseMessage responseMessage = await httpClient.GetAsync($"/api/companies?pageSize={pageSize}&pageIndex={pageIndex}" );
+            HttpResponseMessage responseMessage = await httpClient.GetAsync($"/api/companies?pageSize={pageSize}&pageIndex={pageIndex}");
             var resultCompany = await responseMessage.Content.ReadFromJsonAsync<List<Company>>();
 
-
+            Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
             Assert.Equal(pageSize, resultCompany.Count);
             Assert.Equal("Company0", resultCompany[0].Name);
             Assert.Equal("Company1", resultCompany[1].Name);
+        }
+
+        [Fact]
+        public async Task Should_return_status_200_when_put_given_request()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Google");
+            HttpResponseMessage postResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+            var companyPost = await postResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            CreateCompanyRequest companyUpdateGiven = new CreateCompanyRequest("Meta");
+            HttpResponseMessage putResponseMessage = await httpClient.PutAsJsonAsync($"/api/companies/{companyPost.Id}", companyUpdateGiven);
+
+            HttpResponseMessage getResponseMessage = await httpClient.GetAsync($"/api/companies/{companyPost.Id}");
+            var updatedCompany = await getResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            Assert.Equal(HttpStatusCode.OK, putResponseMessage.StatusCode);
+            Assert.Equal("Meta", updatedCompany.Name);
+        }
+
+        [Fact]
+        public async Task Should_return_status_404_when_put_given_not_exist()
+        {
+            CreateCompanyRequest companyUpdateGiven = new CreateCompanyRequest("Meta");
+            HttpResponseMessage putResponseMessage = await httpClient.PutAsJsonAsync($"/api/companies/1", companyUpdateGiven);
+
+            Assert.Equal(HttpStatusCode.NotFound, putResponseMessage.StatusCode);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Linq;
+using System.Xml.Linq;
 
 namespace CompanyApi.Controllers
 {
@@ -48,6 +49,19 @@ namespace CompanyApi.Controllers
                 return NotFound();
             }
             return StatusCode(StatusCodes.Status200OK, res);
+        }
+
+        [HttpPut("{id}")]
+        public ActionResult<Company> Put(string id, [FromBody]CreateCompanyRequest request)
+        {
+            if (!companies.Exists(company => company.Id.Equals(id)))
+            {
+                return NotFound();
+            }
+            Company? res = companies.FirstOrDefault(x => x.Id == id);
+            res.Name = request.Name;
+
+            return Ok(res);
         }
     }
 }

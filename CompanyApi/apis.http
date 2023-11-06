@@ -9,7 +9,7 @@
 ## GET /api/Companies/{companyID}
 ## GET /api/Companies?pageSize=2&pageIndex=3
 ## PUT /api/Companies/{companyID}
-## DELETE /api/Companies/{companyID} ( Delete employees uner this company in same time )
+## DELETE /api/Companies/{companyID} ( Delete employees under this company in same time )
 
 
 ## AC1 Create Company API 
@@ -55,7 +55,7 @@ Content-Type: application/json; charset=utf-8
   "name": Google
 }
 ### Response: 
-### Case1: Sucess, 204 NO Content
+### Case1: Sucess, 200 Update Successfully
 ### Case2: 404 Company NOT Found
 
 ######################################################################################
