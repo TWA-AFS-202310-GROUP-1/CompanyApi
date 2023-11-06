@@ -92,6 +92,26 @@ namespace CompanyApi.Controllers
         }
 
 
+        [HttpDelete("{companyId}/employees/{employeeId}")]
+        public IActionResult DeleteEmployee(string companyId, string employeeId)
+        {
+            var company = companies.FirstOrDefault(c => c.Id == companyId);
+            if (company == null)
+            {
+                return NotFound("Company not found.");
+            }
+
+            var employee = company.Employees.FirstOrDefault(e => e.Id == employeeId);
+            if (employee == null)
+            {
+                return NotFound("Employee not found.");
+            }
+
+            company.Employees.Remove(employee);
+            return NoContent();
+        }
+
+
 
     }
 }

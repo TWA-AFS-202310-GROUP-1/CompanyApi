@@ -203,7 +203,42 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
-      
+
+
+        [Fact]
+        public async Task Should_delete_employee_from_company_successfully()
+        {
+            await ClearDataAsync();
+            Company companyGiven = new Company("Initial Company Name");
+            HttpResponseMessage initialPostResponse = await httpClient.PostAsync("/api/companies", SerializeObjectToContent(companyGiven));
+            Company? companyCreated = await DeserializeTo<Company>(initialPostResponse);
+            var employeeRequest = new CreateEmployeeRequest
+            {
+                Name = "John",
+                Salary = 60000
+            };
+            var response = await httpClient.PostAsync($"/api/companies/{companyCreated.Id}/employees", SerializeObjectToContent(employeeRequest));
+            var employee = await DeserializeTo<Employee>(response);
+
+            var response1 = await httpClient.DeleteAsync($"/api/companies/{companyCreated.Id}/employees/{employee.Id}");
+
+            Assert.Equal(HttpStatusCode.NoContent, response1.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_return_404_when_deleting_non_existing_employee()
+        {
+            await ClearDataAsync();
+            Company companyGiven = new Company("Initial Company Name");
+            HttpResponseMessage initialPostResponse = await httpClient.PostAsync("/api/companies", SerializeObjectToContent(companyGiven));
+            Company? companyCreated = await DeserializeTo<Company>(initialPostResponse);
+
+            var response = await httpClient.DeleteAsync($"/api/companies/{companyCreated.Id}/employees/non-existing-id");
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+
 
 
 
