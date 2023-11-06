@@ -73,5 +73,22 @@ namespace CompanyApi.Controllers
             company.Employees.Add(newEmployee);
             return Ok(newEmployee);
         }
+
+        [HttpDelete("{company_id}/employees/{employee_id}")]
+        public ActionResult DeleteEmployee(string company_id, string employee_id)
+        {
+            Company company = companies.Find(x => x.Id == company_id);
+            if (company == null)
+            {
+                return NotFound();
+            }
+            if ((company.Employees.Find(x => x.Id == employee_id)) == null)
+            {
+                return NotFound();
+            }
+
+            company.Employees.RemoveAll(x => x.Id == employee_id);
+            return NoContent();
+        }
     }
 }

@@ -164,5 +164,26 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
             Assert.Equal("Kevin", addedEmployee.Name);
         }
+
+        [Fact]
+        public async Task Should_return_status_204_when_delete_given_company_Id_and_a_employee()
+        {
+            // Given
+            await ClearDataAsync();
+            CreateCompanyRequest companyRequest = new CreateCompanyRequest("BlueSky");
+            var tempMessage = await httpClient.PostAsJsonAsync("/api/companies", companyRequest);
+            var createdCompany = await tempMessage.Content.ReadFromJsonAsync<Company>();
+
+            var tempMessage2 = await httpClient.PostAsJsonAsync
+                ($"api/companies/{createdCompany.Id}", new CreateEmployeeRequest("Kevin"));
+            var addedEmployee = await tempMessage2.Content.ReadFromJsonAsync<Employee>();
+
+            // When
+            var httpResponseMessage = await httpClient.DeleteAsync
+                ($"/api/companies/{createdCompany.Id}/employees/{addedEmployee.Id}");
+
+            // Then
+            Assert.Equal(HttpStatusCode.NoContent, httpResponseMessage.StatusCode);
+        }
     }
 }
