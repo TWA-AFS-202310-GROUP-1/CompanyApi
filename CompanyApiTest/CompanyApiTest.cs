@@ -160,5 +160,34 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.OK, httpResponseMessage4.StatusCode);
             Assert.Equal(companyGiven2.Name, company[0].Name);
         }
+
+        [Fact]
+        public async Task Should_return_updated_company_with_status_200_when_put()
+        {
+            // Given
+            await ClearDataAsync();
+            Company companyGiven = new Company("Company 1");
+
+            // When
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(
+                "/api/companies",
+                SerializeObjectToContent(companyGiven)
+            );
+
+            Company? company = await DeserializeTo<Company>(httpResponseMessage);
+
+            Company newCompany = new Company("new Company 1");
+
+            HttpResponseMessage httpResponseMessage2 = await httpClient.PutAsync(
+                "/api/companies/" + company.Id,
+                SerializeObjectToContent(newCompany)
+            );
+
+            // Then
+            Company? company2 = await DeserializeTo<Company>(httpResponseMessage2);
+
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage2.StatusCode);
+            Assert.Equal(newCompany.Name, company2.Name);
+        }
     }
 }
