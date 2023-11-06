@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using static CompanyApi.EmployeeRequest;
 
 namespace CompanyApi.Controllers
 {
@@ -55,7 +56,7 @@ namespace CompanyApi.Controllers
         }
 
         [HttpPut("{companyID}")]
-        public IActionResult UpdateCompany(string companyID, [FromBody] CreateCompanyRequest updateData)
+        public ActionResult UpdateCompany(string companyID, [FromBody] CreateCompanyRequest updateData)
         {
             var existingCompany = companies.FirstOrDefault(c => c.Id == companyID);
             if (existingCompany == null)
@@ -64,6 +65,17 @@ namespace CompanyApi.Controllers
             }
             existingCompany.Name = updateData.Name;
             return NoContent();
+        }
+
+        [HttpPost("{companyId}/employees")]
+        public ActionResult<Employee> AddEmployee(string companyId, [FromBody] CreateEmployeeRequest request)
+        {
+            var company = companies.FirstOrDefault(c => c.Id == companyId);
+            if (company == null) return NotFound();
+
+            Employee employee = new(request.Name, request.Salary, request.CompanyId);
+            company.AddEmployee(employee);
+            return StatusCode(StatusCodes.Status201Created, employee);
         }
 
     }

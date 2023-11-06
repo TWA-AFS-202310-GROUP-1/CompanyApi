@@ -59,3 +59,60 @@ Content-Type: application/json; charset=utf-8
 ### Case2: 404 Company NOT Found
 
 ######################################################################################
+
+
+## AC6 
+## Add an Employee to a Specific Company
+POST https://{{hostname}}:{{port}}/api/companies/{companyID}/employees
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "wx",
+  "salary": 1000
+}
+
+## Response:
+### Case1:  Employee Created Success, Return Employee created with Status Created( 201 )
+### Case2:  Employee Name Exsiting, Return 400 Bad request
+
+######################################################################################
+
+## AC7 Delete a Specific Employee
+DELETE https://{{hostname}}:{{port}}/api/companies/{companyID}/employees/{employeeID}
+
+### Response:
+### Case1: Success, 204 No Content (Employee Deleted)
+### Case2: Employee Not Found, Return 404 Not Found
+
+######################################################################################
+
+## AC8 Get List of All Employees Under a Company
+GET https://{{hostname}}:{{port}}/api/companies/{companyID}/employees
+
+### Response:
+### Case1: Success, OK 200 with List of Employees
+### Case2: Return 404 Not Found
+
+######################################################################################
+
+## AC9 Update Information of a Specific Employee
+PUT https://{{hostname}}:{{port}}/api/companies/{companyID}/employees/{employeeID}
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "wx",
+  "salary": 20000
+}
+
+### Response:
+### Case1: Success, 204 No Content (Employee Updated)
+### Case2: Employee Not Found, Return 404 Not Found
+
+######################################################################################
+
+## AC10 Delete a Company and Its Employees
+DELETE https://{{hostname}}:{{port}}/api/companies/{companyID}
+
+### Response:
+### Case1: Success, 204 No Content (Company and Its Employees Deleted)
+### Case2: Return 404 Not Found

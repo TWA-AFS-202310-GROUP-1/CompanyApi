@@ -173,6 +173,31 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
+        [Fact]
+        public async Task Should_add_employee_to_specific_company_with_status_201()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Apple");
+            var companyResponse = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
+            var company = await companyResponse.Content.ReadFromJsonAsync<Company>();
+
+            var employeeRequest = new EmployeeRequest
+            {
+                Name = "wx",
+                Salary = 1000,
+                CompanyId = company.Id
+            };
+
+
+            var response = await httpClient.PostAsJsonAsync($"/api/companies/{company.Id}/employees", employeeRequest);
+            var addedEmployee = await response.Content.ReadFromJsonAsync<Employee>();
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            Assert.NotNull(addedEmployee);
+            Assert.Equal("wx", addedEmployee.Name);
+            Assert.Equal(1000, addedEmployee.Salary);
+        }
+
+
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
             string response = await httpResponseMessage.Content.ReadAsStringAsync();
