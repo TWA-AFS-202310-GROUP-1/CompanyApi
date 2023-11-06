@@ -1,0 +1,61 @@
+# For more info on HTTP files go to https://aka.ms/vs/httpfile
+
+@hostname=localhost
+@port=5116
+
+# Company APIS
+## POST /api/Companies
+## GET /api/Companies
+## GET /api/Companies/{companyID}
+## GET /api/Companies?pageSize=2&pageIndex=3
+## PUT /api/Companies/{companyID}
+## DELETE /api/Companies/{companyID} ( Delete employees uner this company in same time )
+
+
+## AC1 Create Company API 
+POST https://{{hostname}}:{{port}}/api/companies
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "Google"
+}
+
+## Response:
+### Case1:  Company Created Success, Return Company created with Status Created( 201 )
+### Case2:  Company Name Exsiting, Return 400 Bad request
+### Case3:  Other Bad Reqeust ( Request Body Not Valid )
+
+######################################################################################
+
+## AC2 Get All Compaines
+GET https://{{hostname}}:{{port}}/api/companies
+
+### Response: OK 200 with List of Companes
+
+######################################################################################
+
+## AC3 Get Company By ID
+GET https://{{hostname}}:{{port}}/api/Companies/{companyID}
+
+### Response: 
+### Case1: OK 200 with The Company Found
+### Case2: 404 Company NOT Found
+
+## AC4 GET Companies with Paging 
+GET https://{{hostname}}:{{port}}/api/Companies?pageSize=2&pageIndex=3
+### Response: OK 200 with List of Companes
+
+######################################################################################
+
+## AC5 Update Company 
+PUT https://{{hostname}}:{{port}}/api/Companies/{companyID}
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": Google
+}
+### Response: 
+### Case1: Sucess, 204 NO Content
+### Case2: 404 Company NOT Found
+
+######################################################################################

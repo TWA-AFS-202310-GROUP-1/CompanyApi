@@ -2,7 +2,9 @@ using CompanyApi;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http.Json;
 using System.Text;
+using System.Xml.Linq;
 
 namespace CompanyApiTest
 {
@@ -68,6 +70,60 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.BadRequest, httpResponseMessage.StatusCode);
         }
 
+        [Fact]
+        public async Task Should_return_all_companies_with_200_code_when_getAllCompany()
+        {
+            // Given
+            await ClearDataAsync();
+            Company companyGiven = new Company("BlueSky Digital Media");
+           
+            // When
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies");
+            List<Company> companiesExpected = new List<Company>(); 
+            // Then
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
+            Assert.Equal(companiesExpected, await httpResponseMessage.Content.ReadFromJsonAsync<List<Company>>());
+        }
+
+
+        [Fact]
+        public async Task Should_return_correct_company_with_200_code_when_getone_given_correct_code()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("BlueSky Digital Media") { Name = "BlueSky Digital Media" };
+
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(
+                "/api/companies",
+                SerializeObjectToContent(companyGiven)
+            );
+            Company? companyCreated = await DeserializeTo<Company>(httpResponseMessage);
+            string? givenId = companyCreated.Id;
+
+            HttpResponseMessage httpResponseMessage1 = await httpClient.GetAsync(
+                $"/api/companies/{givenId}");
+            
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage1.StatusCode);
+            Assert.Equal(companyCreated.Id, (await httpResponseMessage1.Content.ReadFromJsonAsync<Company>()).Id);
+        }
+
+        [Fact]
+        public async Task Should_return_404_code_when_getone_given_wrong_code()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("BlueSky Digital Media") { Name = "BlueSky Digital Media" }; 
+
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(
+                "/api/companies",
+                SerializeObjectToContent(companyGiven)
+            );
+            Company? companyCreated = await DeserializeTo<Company>(httpResponseMessage);
+            string? givenId = "wrongID";
+
+            HttpResponseMessage httpResponseMessage1 = await httpClient.GetAsync(
+                $"/api/companies/{givenId}");
+
+            Assert.Equal(HttpStatusCode.NotFound, httpResponseMessage1.StatusCode);
+        }
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
             string response = await httpResponseMessage.Content.ReadAsStringAsync();
