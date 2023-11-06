@@ -31,5 +31,16 @@ namespace CompanyApi.Controllers
         {
             return Ok(companies);
         }
+
+        [HttpGet("{id}")]
+        public ActionResult<Company> Get(string id)
+        {
+            Company? res = companies.FirstOrDefault(x => x.Id == id);
+            if(res == null)
+            {
+                return NotFound();
+            }
+            return StatusCode(StatusCodes.Status200OK, res);
+        }
     }
 }

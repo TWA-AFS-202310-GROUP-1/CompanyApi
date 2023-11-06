@@ -100,5 +100,32 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
             Assert.Equal(companyGiven.Name, companyList[0].Name);
         }
+
+        [Fact]
+        public async Task Should_return_existing_company_with_status_200_when_get_by_id_given_company_id()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Google");
+            HttpResponseMessage responseMessagePost = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+
+            var companyReceive = await responseMessagePost.Content.ReadFromJsonAsync<Company>();
+
+
+            HttpResponseMessage responseMessage = await httpClient.GetAsync("/api/companies/" + companyReceive.Id);
+            var resultCompany = await responseMessage.Content.ReadFromJsonAsync<Company>();
+
+            Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+            Assert.Equal(companyReceive.Name, resultCompany.Name);
+        }
+
+        [Fact]
+        public async Task Should_return_status_404_when_get_by_id_given_not_exist()
+        {
+            await ClearDataAsync();
+            HttpResponseMessage responseMessage = await httpClient.GetAsync("/api/companies/" + "Google");
+            var resultCompany = await responseMessage.Content.ReadFromJsonAsync<Company>();
+
+            Assert.Equal(HttpStatusCode.NotFound, responseMessage.StatusCode);
+        }
     }
 }
