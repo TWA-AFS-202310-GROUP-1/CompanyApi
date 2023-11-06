@@ -64,7 +64,7 @@ namespace CompanyApi.Controllers
             return Ok(company);
         }
 
-        [HttpPost("{companyID}/Employees")]
+        [HttpPost("{companyID}/employees")]
         public ActionResult<Employee> CreateEmployee(string companyID, CreateEmployeeRequest request)
         {
             if (!companies.Exists(company => company.Id == companyID))
