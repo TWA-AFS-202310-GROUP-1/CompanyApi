@@ -84,5 +84,23 @@ namespace CompanyApi.Controllers
             company.Employees.Add(employeeAdded);
             return StatusCode(StatusCodes.Status201Created, employeeAdded);
         }
+
+
+        [HttpDelete("{companyID}/employees/{employeeID}")]
+        public ActionResult<Employee> DeleteEmployee(string companyID, string employeeID)
+        {
+            Company company = companies.FirstOrDefault(c => c.Id == companyID);
+            if (company == null)
+            {
+                return NotFound(companyID);
+            }
+            Employee employeeDeleted = company.Employees.FirstOrDefault(e => e.Id == employeeID);
+            if (employeeDeleted == null)
+            {
+                return NotFound();
+            }
+            company.Employees.Remove(employeeDeleted);
+            return Ok(employeeDeleted);
+        }
     }
 }
