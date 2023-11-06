@@ -60,8 +60,54 @@ Content-Type: application/json; charset=utf-8
 
 ######################################################################################
 
-## AC4 GET Companies with Paging 
-GET https://{{hostname}}:{{port}}/api/Companies?pageSize=2&pageIndex=3
-### Response: OK 200 with List of Companes
+## AC6 Add an employee to a specific company
+POST https://{{hostname}}:{{port}}/api/Companies/{companyID}/Employees
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "Kevin"
+}
+### Response: 
+### Case1: OK 200 with the New Employee
+### Case2: Employee Name Exsiting, Return 400 Bad request
+### Case3: Other Bad Reqeust ( Request Body Not Valid )
 
 ######################################################################################
+
+## AC7 Delete an employee in a specific company
+DELETE https://{{hostname}}:{{port}}/api/Companies/{companyID}/Employees/{employeeID}
+
+### Response: 
+### Case1: Sucess, 204 NO Content
+### Case2: Employee Name Not Exsiting, Return 400 Bad request
+
+######################################################################################
+
+## AC8 Get All employees in a specific company
+DELETE https://{{hostname}}:{{port}}/api/Companies/{companyID}/Employees
+
+### Response: 
+### Case1: OK 200 with the List of Employees
+
+######################################################################################
+
+## AC9 Update A Specific Employee under A Specific Company
+DELETE https://{{hostname}}:{{port}}/api/Companies/{companyID}/Employees/{employeeID}
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "Kevin"
+}
+### Response: 
+### Case1: OK 200 with the Updated Employee
+### Case2: 404 not found
+
+######################################################################################
+
+## AC10 Delete A Specific Company and All Employees in It 
+DELETE https://{{hostname}}:{{port}}/api/Companies/{companyID}/
+Content-Type: application/json; charset=utf-8
+
+### Response: 
+### Case1: Sucess, 204 NO Content
+### Case2: 404 not found
