@@ -28,34 +28,87 @@ Content-Type: application/json; charset=utf-8
 ######################################################################################
 
 ## AC2 Get All Compaines
-GET https://{{hostname}}:{{port}}/api/companies
+GET http://{{hostname}}:{{port}}/api/companies
 
 ### Response: OK 200 with List of Companes
 
 ######################################################################################
 
 ## AC3 Get Company By ID
-GET https://{{hostname}}:{{port}}/api/Companies/{companyID}
+GET http://{{hostname}}:{{port}}/api/companies/{companyID}
 
 ### Response: 
 ### Case1: OK 200 with The Company Found
 ### Case2: 404 Company NOT Found
 
 ## AC4 GET Companies with Paging 
-GET https://{{hostname}}:{{port}}/api/Companies?pageSize=2&pageIndex=3
-### Response: OK 200 with List of Companes
+GET http://{{hostname}}:{{port}}/api/companies?pageSize=1&pageIndex=5
+### Response: OK 200 with List of Companies
 
 ######################################################################################
 
 ## AC5 Update Company 
-PUT https://{{hostname}}:{{port}}/api/Companies/{companyID}
+PUT http://{{hostname}}:{{port}}/api/companies/{companyID}
 Content-Type: application/json; charset=utf-8
 
 {
-  "name": Google
+  "name": "Updated Company Name"
 }
 ### Response: 
 ### Case1: Sucess, 204 NO Content
 ### Case2: 404 Company NOT Found
 
 ######################################################################################
+
+## AC6 Add an Employee to a Specific Company
+POST https://{{hostname}}:{{port}}/api/companies/{companyID}/employees
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "Peter",
+  "salary": 5000
+}
+
+### Response:
+### Case1: Employee Created Success, Return Employee created with Status Created(201)
+### Case2: Company Not Found, Return 404 Not Found
+
+## AC7 Delete a Specific Employee
+DELETE https://{{hostname}}:{{port}}/api/companies/{companyID}/employees/{employeeID}
+
+### Response:
+### Case1: Success, 204 No Content (Employee Deleted)
+### Case2: Company Not Found, Return 404 Not Found
+
+######################################################################################
+
+## AC8 Get List of All Employees Under a Specific Company
+GET https://{{hostname}}:{{port}}/api/companies/{companyID}/employees
+
+### Response:
+### Case1: OK 200 with List of Employees
+### Case2: Company Not Found, Return 404 Not Found
+
+######################################################################################
+
+## AC9 Update Basic Information of a Specific Employee
+PUT https://{{hostname}}:{{port}}/api/companies/{companyID}/employees/{employeeID}
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "Peter",
+  "salary": 5000
+}
+
+### Response:
+### Case1: Success, 204 No Content (Employee Updated)
+### Case2: Company Not Found, Return 404 Not Found
+
+######################################################################################
+
+## AC10 Delete a Specific Company and Its Employees
+DELETE https://{{hostname}}:{{port}}/api/companies/{companyID}
+
+### Response:
+### Case1: Success, 204 No Content (Company and Its Employees Deleted)
+### Case2: Company Not Found, Return 404 Not Found
