@@ -22,16 +22,26 @@ namespace CompanyApi.Controllers
 
         [HttpDelete]
         public void ClearData()
-        { 
+        {
             companies.Clear();
         }
 
         [HttpGet]
-        public List<Company> Get()
+        public ActionResult<List<Company>> Get()
         {
-            return companies;
+            return Ok(companies);
         }
 
+        [HttpGet("{id}")]
+        public ActionResult<Company> GetById(string id)
+        {
+            Company? company = companies.FirstOrDefault(c => c.Id.Equals(id));
+            if (company == null)
+            {
+                return NotFound();
+            }
+            return Ok(company);
+        }
         
     }
 }
