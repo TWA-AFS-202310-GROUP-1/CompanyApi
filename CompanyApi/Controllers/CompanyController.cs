@@ -26,11 +26,11 @@ namespace CompanyApi.Controllers
             companies.Clear();
         }
 
-        [HttpGet]
-        public List<Company> GetAllCompanies()
-        {
-            return companies;
-        }
+        //[HttpGet]
+        //public List<Company> GetAllCompanies()
+        //{
+            //return companies;
+        //}
 
         [HttpGet("{id}")]
         public ActionResult<Company> GetCompany(string id)
@@ -43,6 +43,23 @@ namespace CompanyApi.Controllers
             else
             {
                 return Ok(company);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult<List<Company>> GetCompanyInSpecificPage([FromQuery]int? pagesize, [FromQuery]int? pageindex)
+        {
+            if ((pagesize == null) || (pageindex == null)) return companies;
+            else
+            {
+                List<Company> companiesInSpecificPage = new List<Company>();
+                int start = (int)(pagesize * (pageindex - 1));
+                int end = (int)(start + pagesize);
+                for (int i = start; i < end; i++)
+                {
+                    companiesInSpecificPage.Add(companies[i]);
+                }
+                return Ok(companiesInSpecificPage);
             }
         }
     }

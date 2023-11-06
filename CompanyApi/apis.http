@@ -59,3 +59,9 @@ Content-Type: application/json; charset=utf-8
 ### Case2: 404 Company NOT Found
 
 ######################################################################################
+
+## AC4 GET Companies with Paging 
+GET https://{{hostname}}:{{port}}/api/Companies?pageSize=2&pageIndex=3
+### Response: OK 200 with List of Companes
+
+######################################################################################

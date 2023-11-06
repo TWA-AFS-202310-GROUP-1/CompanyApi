@@ -123,5 +123,27 @@ namespace CompanyApiTest
             // Then
             Assert.Equal(HttpStatusCode.NotFound, httpResponseMessage.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_return_correct_companies_with_status_200_when_get_by_page_given_size_and_number()
+        {
+            // Given
+            await ClearDataAsync();
+            await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest("Blue"));
+            await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest("Red"));
+            await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest("Green"));
+            await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest("Black"));
+            await httpClient.PostAsJsonAsync("/api/companies", new CreateCompanyRequest("White"));
+
+            // When
+            HttpResponseMessage httpResponseMessage =
+                await httpClient.GetAsync("/api/companies?pagesize=2&pageindex=2");
+            List<Company> responseCompanies = await httpResponseMessage.Content.ReadFromJsonAsync<List<Company>>();
+
+            // Then
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
+            Assert.Equal("Green", responseCompanies[0].Name);
+            Assert.Equal("Black", responseCompanies[1].Name);
+        }
     }
 }
