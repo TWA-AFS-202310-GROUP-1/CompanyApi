@@ -36,19 +36,19 @@ namespace CompanyApi.Controllers
             {
                 return Ok(companies);
             }
-            var resultList = companies.Skip((int)((pageIndex - 1) * pageSize)).Take((int)pageSize).ToList();
-            return Ok(resultList);
+            var pagingList = companies.Skip((int)((pageIndex - 1) * pageSize)).Take((int)pageSize).ToList();
+            return Ok(pagingList);
         }
 
         [HttpGet("{id}")]
         public ActionResult<Company> Get(string id)
         {
-            Company? res = companies.FirstOrDefault(x => x.Id == id);
-            if(res == null)
+            Company? company = companies.FirstOrDefault(x => x.Id == id);
+            if(company == null)
             {
                 return NotFound();
             }
-            return StatusCode(StatusCodes.Status200OK, res);
+            return StatusCode(StatusCodes.Status200OK, company);
         }
 
         [HttpPut("{id}")]
@@ -58,10 +58,10 @@ namespace CompanyApi.Controllers
             {
                 return NotFound();
             }
-            Company? res = companies.FirstOrDefault(x => x.Id == id);
-            res.Name = request.Name;
+            Company? company = companies.FirstOrDefault(x => x.Id == id);
+            company.Name = request.Name;
 
-            return Ok(res);
+            return Ok(company);
         }
 
         [HttpPost("{companyID}/Employees")]
