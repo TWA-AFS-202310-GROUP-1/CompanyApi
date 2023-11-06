@@ -105,5 +105,41 @@ namespace CompanyApiTest
             Assert.Equal(company1.Name, responseCompanies[0].Name);
             Assert.Equal(company2.Name, responseCompanies[1].Name);
         }
+
+        [Fact]
+        public async Task Should_return_correct_company_with_status_200_when_get_by_name_given_an_existing_company()
+        {
+            // Given
+            await ClearDataAsync();
+            CreateCompanyRequest companyRequest = new CreateCompanyRequest("kevin");
+            var tempMessage = await httpClient.PostAsJsonAsync("/api/companies", companyRequest);
+            var createdCompany = await tempMessage.Content.ReadFromJsonAsync<Company>();
+
+            // When
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync($"/api/companies/{createdCompany.Id}");
+            Company responseCompany = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            // Then
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
+            Assert.Equal("kevin", responseCompany.Name);
+        }
+
+        [Fact]
+        public async Task Should_return_not_found_with_status_404_when_get_by_name_given_an_unvalid_company()
+        {
+            // Given
+            await ClearDataAsync();
+            CreateCompanyRequest companyRequest = new CreateCompanyRequest("kevin");
+            await httpClient.PostAsJsonAsync("/api/companies", companyRequest);
+
+            string wrongId = "123456";
+
+            // When
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync($"/api/companies/{wrongId}");
+            Company responseCompany = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            // Then
+            Assert.Equal(HttpStatusCode.NotFound, httpResponseMessage.StatusCode);
+        }
     }
 }

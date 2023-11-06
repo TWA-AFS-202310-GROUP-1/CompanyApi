@@ -22,7 +22,7 @@ namespace CompanyApi.Controllers
 
         [HttpDelete]
         public void ClearData()
-        { 
+        {
             companies.Clear();
         }
 
@@ -30,6 +30,20 @@ namespace CompanyApi.Controllers
         public List<Company> GetAllCompanies()
         {
             return companies;
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<Company> GetCompany(string id)
+        {
+            Company company = companies.Find(x => x.Id == id);
+            if(company==null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return Ok(company);
+            }
         }
     }
 }
