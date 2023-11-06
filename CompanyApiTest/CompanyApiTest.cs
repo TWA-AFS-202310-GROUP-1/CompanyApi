@@ -2,6 +2,7 @@ using CompanyApi;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text;
 
@@ -131,6 +132,47 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
             Assert.Equal(companies[2].Name, page[0].Name);
         }
+
+        [Fact]
+        public async Task Should_update_company_with_status_204_when_valid_company_id_given()
+        {
+            await ClearDataAsync();
+
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("BlueSky");
+            var company = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
+            var companyRes = await company.Content.ReadFromJsonAsync<Company>();
+
+            var updateData = new
+            {
+                name = "Google"
+            };
+            var response = await httpClient.PutAsJsonAsync($"/api/companies/{companyRes.Id}", updateData);
+
+            HttpResponseMessage afterUpdate = await httpClient.GetAsync($"/api/companies/{companyRes.Id}");
+
+            var updatedCompany = await afterUpdate.Content.ReadFromJsonAsync<Company>();
+            Assert.Equal("Google", updatedCompany.Name);
+            Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_not_update_company_with_status_404_when_invalid_company_id_given()
+        {
+            await ClearDataAsync();
+
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("BlueSky");
+            var company = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
+            var companyRes = await company.Content.ReadFromJsonAsync<Company>();
+
+            var updateData = new
+            {
+                name = "Google"
+            };
+            var response = await httpClient.PutAsJsonAsync($"/api/companies/xxx", updateData);
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
             string response = await httpResponseMessage.Content.ReadAsStringAsync();

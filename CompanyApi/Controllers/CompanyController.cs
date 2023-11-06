@@ -50,12 +50,20 @@ namespace CompanyApi.Controllers
             {
                 return Ok(companies.ToList());
             }
-
             List<Company> page = companies.Skip(((int)pageIndex - 1) * (int)pageSize).Take((int)pageSize).ToList();
+            return Ok(page);         
+        }
 
-            return Ok(page);
-
-          
+        [HttpPut("{companyID}")]
+        public IActionResult UpdateCompany(string companyID, [FromBody] CreateCompanyRequest updateData)
+        {
+            var existingCompany = companies.FirstOrDefault(c => c.Id == companyID);
+            if (existingCompany == null)
+            {
+                return NotFound("Company Not Found");
+            }
+            existingCompany.Name = updateData.Name;
+            return NoContent();
         }
 
     }
