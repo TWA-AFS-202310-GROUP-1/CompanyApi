@@ -124,5 +124,41 @@ namespace CompanyApiTest
             //Assert.NotNull(companiesReturned);
             Assert.Equal(companyName, companiesReturned.Name);
         }
+
+        [Fact]
+        public async Task Should_return_lists_when_get_companies_given_page_and_page_size()
+        {
+            // Given
+            await ClearDataAsync();
+            Company companyGiven1 = new Company("Company 1");
+            Company companyGiven2 = new Company("Company 2");
+            Company companyGiven3 = new Company("Company 3");
+            //When
+
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(
+                "/api/companies",
+                SerializeObjectToContent(companyGiven1)
+            );
+
+            HttpResponseMessage httpResponseMessage2 = await httpClient.PostAsync(
+                "/api/companies",
+                SerializeObjectToContent(companyGiven2)
+            );
+
+            HttpResponseMessage httpResponseMessage3 = await httpClient.PostAsync(
+                "/api/companies",
+                SerializeObjectToContent(companyGiven3)
+            );
+
+            HttpResponseMessage httpResponseMessage4 = await httpClient.GetAsync(
+                "/api/companies/1/1"
+            );
+
+            // Then
+            List<Company>? company = await DeserializeTo<List<Company>>(httpResponseMessage4);
+
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage4.StatusCode);
+            Assert.Equal(companyGiven2.Name, company[0].Name);
+        }
     }
 }

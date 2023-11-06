@@ -32,6 +32,23 @@ namespace CompanyApi.Controllers
             Company company = companies.FirstOrDefault(c => c.Name == companyName);
             return Ok(company);
         }
+
+        [HttpGet("{pageSize}/{pageIndex}")]
+        public ActionResult<List<Company>> GetByPageInfo(int pageSize, int pageIndex)
+        {
+            int totalCompanies = companies.Count;
+            int startIndex = pageSize * (pageIndex - 1);
+            int endIndex = Math.Min(startIndex + pageSize, totalCompanies);
+
+            if (startIndex >= totalCompanies)
+            {
+                return StatusCode(StatusCodes.Status200OK, new List<Company>());
+            }
+
+            List<Company> resCompanies = companies.GetRange(startIndex, endIndex - startIndex);
+            return StatusCode(StatusCodes.Status200OK, resCompanies);
+        }
+
         [HttpDelete]
         public void ClearData()
         { 
