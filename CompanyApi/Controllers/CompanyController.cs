@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Linq;
 
 namespace CompanyApi.Controllers
 {
@@ -27,9 +29,14 @@ namespace CompanyApi.Controllers
         }
 
         [HttpGet]
-        public ActionResult<List<Company>> GetAll()
+        public ActionResult<List<Company>> GetAll([FromQuery] int? pageSize, [FromQuery] int? pageIndex)
         {
-            return Ok(companies);
+            if (pageSize == null && pageIndex == null)
+            {
+                return Ok(companies);
+            }
+            var resultList = companies.Skip((int)((pageIndex - 1) * pageSize)).Take((int)pageSize).ToList(); // PageIndex start with 1
+            return Ok(resultList);
         }
 
         [HttpGet("{id}")]
