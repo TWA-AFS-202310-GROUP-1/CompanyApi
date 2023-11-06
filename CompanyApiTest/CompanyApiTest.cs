@@ -90,14 +90,12 @@ namespace CompanyApiTest
             await ClearDataAsync();
             CreateCompanyRequest companyGiven = new CreateCompanyRequest("BlueSky");
             var company = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
-            var result = await company.Content.ReadFromJsonAsync<Company>();
+            var companyRes = await company.Content.ReadFromJsonAsync<Company>();
 
-            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies/" + result.Id);
-
-
-
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies/" + companyRes.Id);
+            var result = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
             Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
-            Assert.Equal("BlueSky", result.Name);
+            Assert.Equal(companyRes.Name, result.Name);
         }
 
         [Fact]
@@ -112,7 +110,27 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.NotFound, httpResponseMessage.StatusCode);
         }
 
+        [Fact]
+        public async Task Should_return_companies_with_status_200_when_find_company_list_given_page_and_page_size()
+        {
+            await ClearDataAsync();
+            List<Company> companies = new List<Company>();
+            for (int i = 1; i <= 10; i++)
+            {
+                CreateCompanyRequest companyGiven = new CreateCompanyRequest($"Comapny {i}");
+                var response = await httpClient.PostAsJsonAsync("api/companies", companyGiven);
+                var result = await response.Content.ReadFromJsonAsync<Company>();
+                companies.Add(result);
+            }
 
+            int pageIndex = 2;
+            int pageSize = 2;
+
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("api/companies?pageSize=2&pageIndex=2");
+            var page = await httpResponseMessage.Content.ReadFromJsonAsync<List<Company>>();
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
+            Assert.Equal(companies[2].Name, page[0].Name);
+        }
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
             string response = await httpResponseMessage.Content.ReadAsStringAsync();

@@ -26,11 +26,11 @@ namespace CompanyApi.Controllers
             companies.Clear();
         }
 
-        [HttpGet]
+/*        [HttpGet("")]
         public ActionResult<List<Company>> GetAll()
         {
             return Ok(companies.ToList());
-        }
+        }*/
 
         [HttpGet("{id}")]
         public ActionResult<Company> Get(string id)
@@ -42,5 +42,21 @@ namespace CompanyApi.Controllers
             }
             return Ok(res);
         }
+
+        [HttpGet]
+        public ActionResult<List<Company>> GetPaged([FromQuery] int? pageIndex, [FromQuery] int? pageSize)
+        {
+            if(pageIndex == null || pageSize == null)
+            {
+                return Ok(companies.ToList());
+            }
+
+            List<Company> page = companies.Skip(((int)pageIndex - 1) * (int)pageSize).Take((int)pageSize).ToList();
+
+            return Ok(page);
+
+          
+        }
+
     }
 }
