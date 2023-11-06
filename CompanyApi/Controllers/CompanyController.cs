@@ -26,6 +26,12 @@ namespace CompanyApi.Controllers
             return Ok(companies);
         }
 
+        [HttpGet("/api/companies/{companyName}")]
+        public ActionResult<List<Company>> GetCompany(string companyName)
+        {
+            Company company = companies.FirstOrDefault(c => c.Name == companyName);
+            return Ok(company);
+        }
         [HttpDelete]
         public void ClearData()
         { 

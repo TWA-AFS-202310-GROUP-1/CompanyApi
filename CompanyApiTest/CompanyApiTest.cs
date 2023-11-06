@@ -104,5 +104,25 @@ namespace CompanyApiTest
             Assert.NotNull(companiesReturned);
             Assert.Equal(companiesGiven.Name, companiesReturned[0].Name);
         }
+
+        [Fact]
+        public async Task Should_return_company_with_status_200_when_get_specific_company()
+        {
+            // Given
+            await ClearDataAsync();
+            string companyName = "Company 1";
+            Company companiesGiven = new Company(companyName);
+
+            await httpClient.PostAsJsonAsync("api/companies", companiesGiven);
+
+            // When
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies/Company 1");
+
+            // Then
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
+            Company companiesReturned = await DeserializeTo<Company>(httpResponseMessage);
+            //Assert.NotNull(companiesReturned);
+            Assert.Equal(companyName, companiesReturned.Name);
+        }
     }
 }
