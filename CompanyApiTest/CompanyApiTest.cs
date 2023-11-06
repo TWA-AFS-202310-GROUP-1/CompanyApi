@@ -233,5 +233,44 @@ namespace CompanyApiTest
 
             Assert.Equal(HttpStatusCode.BadRequest, postEmployeeResponseMessage.StatusCode);
         }
+
+        [Fact]
+        public async Task Should_return_no_content_when_delete_specific_employee_given_employeeId()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Google");
+            HttpResponseMessage postCompanyResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+            var companyPost = await postCompanyResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            CreateEmployeeRequest employeeGiven = new CreateEmployeeRequest("Amy", 10);
+            HttpResponseMessage postEmployeeResponseMessage = await httpClient.PostAsJsonAsync($"/api/companies/{companyPost.Id}", employeeGiven);
+            var employeePost = await postEmployeeResponseMessage.Content.ReadFromJsonAsync<Employee>();
+
+            HttpResponseMessage deleteEmployeeMessage = await httpClient.DeleteAsync($"/api/companies/{companyPost.Id}/employees/{employeePost.Id}");
+
+            Assert.Equal(HttpStatusCode.NoContent, deleteEmployeeMessage.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_return_not_found_when_delete_specific_employee_given_not_existed_companyId()
+        {
+            await ClearDataAsync();
+            HttpResponseMessage deleteEmployeeMessage = await httpClient.DeleteAsync($"/api/companies/123/employees/123");
+
+            Assert.Equal(HttpStatusCode.NotFound, deleteEmployeeMessage.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_return_not_found_when_delete_specific_employee_given_not_existed_employeeId()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Google");
+            HttpResponseMessage postCompanyResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+            var companyPost = await postCompanyResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            HttpResponseMessage deleteEmployeeMessage = await httpClient.DeleteAsync($"/api/companies/{companyPost.Id}/employees/123");
+
+            Assert.Equal(HttpStatusCode.NotFound, deleteEmployeeMessage.StatusCode);
+        }
     }
 }

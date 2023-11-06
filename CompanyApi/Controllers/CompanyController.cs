@@ -65,7 +65,7 @@ namespace CompanyApi.Controllers
         }
 
         [HttpPost("{companyID}")]
-        public ActionResult<Employee> Create(string companyID, CreateEmployeeRequest request)
+        public ActionResult<Employee> CreateEmployee(string companyID, CreateEmployeeRequest request)
         {
             if (!companies.Exists(company => company.Id == companyID))
             {
@@ -80,6 +80,26 @@ namespace CompanyApi.Controllers
             Employee employeeCreated = new Employee(request.Name, request.Salary);
             company.Employees.Add(employeeCreated);
             return StatusCode(StatusCodes.Status201Created, employeeCreated);
+        }
+
+        [HttpDelete("{companyID}/employees/{employeeID}")]
+        public ActionResult DeleteEmployee(string companyID, string employeeID)
+        {
+            if (!companies.Exists(company => company.Id == companyID))
+            {
+                return NotFound();
+            }
+
+            Company? company = companies.FirstOrDefault(x => x.Id == companyID);
+
+            if (!company.Employees.Exists(employee => employee.Id == employeeID))
+            {
+                return NotFound();
+            }
+
+            Employee? employee = company.Employees.FirstOrDefault(x => x.Id == employeeID);
+            company.Employees.Remove(employee);
+            return NoContent();
         }
     }
 }
