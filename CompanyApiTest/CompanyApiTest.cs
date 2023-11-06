@@ -2,6 +2,8 @@ using CompanyApi;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 
 namespace CompanyApiTest
@@ -83,6 +85,20 @@ namespace CompanyApiTest
         private async Task ClearDataAsync()
         {
             await httpClient.DeleteAsync("/api/companies");
+        }
+
+        [Fact]
+        public async Task Should_return_all_companies_with_status_200_when_get_all()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Google");
+            await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+
+            HttpResponseMessage responseMessage = await httpClient.GetAsync("/api/companies");
+            var companyList = await responseMessage.Content.ReadFromJsonAsync<List<Company>>();
+
+            Assert.Equal(HttpStatusCode.OK, responseMessage.StatusCode);
+            Assert.Equal(companyGiven.Name, companyList[0].Name);
         }
     }
 }
