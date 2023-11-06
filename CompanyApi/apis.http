@@ -61,15 +61,15 @@ Content-Type: application/json; charset=utf-8
 ######################################################################################
 
 # Employee APIS
-## POST /api/Companies/{companyID}
+## POST /api/Companies/{companyID}/Employees
 ## DELETE /api/Companies/{companyID}/Employees/{employeeID}
-## GET /api/Companies/{companyID}
+## GET /api/Companies/{companyID}/Employees
 ## PUT /api/Companies/{companyID}/Employees/{employeeID}
-## DELETE /api/Companies/{companyID}
+## DELETE /api/Companies/{companyID}/Employees
 
 
 ## AC6 Add Employee To A Company API 
-POST https://{{hostname}}:{{port}}/api/companies/{companyID}
+POST https://{{hostname}}:{{port}}/api/companies/{companyID}/employees
 Content-Type: application/json; charset=utf-8
 
 {
@@ -86,7 +86,7 @@ Content-Type: application/json; charset=utf-8
 ######################################################################################
 
 ## AC7 Delete Specific Employee Under Specific Company API 
-DELETE https://{{hostname}}:{{port}}/api/companies/{companyID}/Employees/{employeeID}
+DELETE https://{{hostname}}:{{port}}/api/companies/{companyID}/employees/{employeeID}
 
 ## Response:
 ### Case1:  Success, 204 No Content
@@ -96,7 +96,7 @@ DELETE https://{{hostname}}:{{port}}/api/companies/{companyID}/Employees/{employ
 ######################################################################################
 
 ## AC8 Get All Employee In A Company API 
-GET https://{{hostname}}:{{port}}/api/companies/{companyID}
+GET https://{{hostname}}:{{port}}/api/companies/{companyID}/employees
 
 ## Response:
 ### Case1:  OK 200 with List of Employees
@@ -105,7 +105,7 @@ GET https://{{hostname}}:{{port}}/api/companies/{companyID}
 ######################################################################################
 
 ## AC9 Update Employee API 
-PUT https://{{hostname}}:{{port}}/api/companies/{companyID}/Employees/{employeeID}
+PUT https://{{hostname}}:{{port}}/api/companies/{companyID}/employees/{employeeID}
 Content-Type: application/json; charset=utf-8
 
 {
@@ -121,7 +121,7 @@ Content-Type: application/json; charset=utf-8
 ######################################################################################
 
 ## AC10 Delete All Employee API 
-DELETE https://{{hostname}}:{{port}}/api/companies/{companyID}
+DELETE https://{{hostname}}:{{port}}/api/companies/{companyID}/employees
 
 ## Response:
 ### Case1:  Success, 204 No Content
