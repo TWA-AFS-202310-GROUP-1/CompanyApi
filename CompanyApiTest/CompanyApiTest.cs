@@ -166,6 +166,45 @@ namespace CompanyApiTest
             Assert.Equal("Updated Company Name", companyAfterUpdate.Name);
         }
 
+        [Fact]
+        public async Task Should_add_employee_to_company_successfully()
+        {
+            await ClearDataAsync();
+            Company companyGiven = new Company("Initial Company Name");
+            HttpResponseMessage initialPostResponse = await httpClient.PostAsync("/api/companies", SerializeObjectToContent(companyGiven));
+            Company? companyCreated = await DeserializeTo<Company>(initialPostResponse);
+            var employeeRequest = new CreateEmployeeRequest
+            {
+                Name = "John",
+                Salary = 60000
+            };
+
+            var response = await httpClient.PostAsync($"/api/companies/{companyCreated.Id}/employees", SerializeObjectToContent(employeeRequest));
+
+            response.EnsureSuccessStatusCode();
+            var employee = await DeserializeTo<Employee>(response);
+            Assert.NotNull(employee);
+            Assert.NotEmpty(employee.Id);
+            Assert.Equal(employeeRequest.Name, employee.Name);
+            Assert.Equal(employeeRequest.Salary, employee.Salary);
+        }
+
+        [Fact]
+        public async Task Should_return_404_when_adding_employee_to_non_existing_company()
+        {
+            var employeeRequest = new CreateEmployeeRequest
+            {
+                Name = "John",
+                Salary = 70000
+            };
+
+            var response = await httpClient.PostAsync("/api/companies/non-existing-id/employees", SerializeObjectToContent(employeeRequest));
+
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+      
+
 
 
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)

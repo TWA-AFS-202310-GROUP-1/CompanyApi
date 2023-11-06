@@ -59,3 +59,28 @@ Content-Type: application/json; charset=utf-8
 ### Case2: 404 Company NOT Found
 
 ######################################################################################
+
+## AC6 Add Employee to a Company API
+POST https://{{hostname}}:{{port}}/api/Companies/{companyID}/employees
+Content-Type: application/json; charset=utf-8
+
+{
+  "name": "Jane Doe",
+  "salary": 75000
+}
+
+### Response:
+### Case1: Employee Added Successfully, Return Status Created (201) with Employee Data
+### Case2: Company Not Found, Return 404 Not Found
+### Case3: Invalid Employee Data (e.g., empty name or negative salary), Return 400 Bad Request
+
+######################################################################################
+
+## AC7 Delete Employee from a Company API
+DELETE https://{{hostname}}:{{port}}/api/Companies/{companyID}/employees/{employeeID}
+
+### Response:
+### Case1: Employee Deleted Successfully, Return 204 No Content
+### Case2: Company Not Found, Return 404 Not Found
+### Case3: Employee Not Found, Return 404 Not Found
+######################################################################################
