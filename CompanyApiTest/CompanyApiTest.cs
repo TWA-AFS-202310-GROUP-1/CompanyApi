@@ -22,17 +22,14 @@ namespace CompanyApiTest
         {
             // Given
             await ClearDataAsync();
-            Company companyGiven = new Company("BlueSky Digital Media");
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("BlueSky Digital Media");
             
             // When
-            HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(
-                "/api/companies", 
-                SerializeObjectToContent(companyGiven)
-            );
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
            
             // Then
             Assert.Equal(HttpStatusCode.Created, httpResponseMessage.StatusCode);
-            Company? companyCreated = await DeserializeTo<Company>(httpResponseMessage);
+            Company companyCreated = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
             Assert.NotNull(companyCreated);
             Assert.NotNull(companyCreated.Id);
             Assert.Equal(companyGiven.Name, companyCreated.Name);
@@ -43,14 +40,11 @@ namespace CompanyApiTest
         {
             // Given
             await ClearDataAsync();
-            Company companyGiven = new Company("BlueSky Digital Media");
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("BlueSky Digital Media");
 
             // When
-            await httpClient.PostAsync("/api/companies", SerializeObjectToContent(companyGiven));
-            HttpResponseMessage httpResponseMessage = await httpClient.PostAsync(
-                "/api/companies", 
-                SerializeObjectToContent(companyGiven)
-            );
+            await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
             // Then
             Assert.Equal(HttpStatusCode.BadRequest, httpResponseMessage.StatusCode);
         }
@@ -69,18 +63,6 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.BadRequest, httpResponseMessage.StatusCode);
         }
 
-        private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
-        {
-            string response = await httpResponseMessage.Content.ReadAsStringAsync();
-            T? deserializedObject = JsonConvert.DeserializeObject<T>(response);
-            return deserializedObject;
-        }
-
-        private static StringContent SerializeObjectToContent<T>(T objectGiven)
-        {
-            return new StringContent(JsonConvert.SerializeObject(objectGiven), Encoding.UTF8, "application/json");
-        }
-
         private async Task ClearDataAsync()
         {
             await httpClient.DeleteAsync("/api/companies");
@@ -91,10 +73,10 @@ namespace CompanyApiTest
         {
             // Given
             await ClearDataAsync();
-            Company company1 = new Company("Kevin");
-            Company company2 = new Company("Bob");
-            await httpClient.PostAsJsonAsync<Company>("/api/companies", company1);
-            await httpClient.PostAsJsonAsync<Company>("/api/companies", company2);
+            CreateCompanyRequest companyGiven1 = new CreateCompanyRequest("BlueSky Digital Media");
+            CreateCompanyRequest companyGiven2 = new CreateCompanyRequest("GreenLand Market");
+            await httpClient.PostAsJsonAsync("/api/companies", companyGiven1);
+            await httpClient.PostAsJsonAsync("/api/companies", companyGiven2);
 
             // When
             HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies");
@@ -102,8 +84,8 @@ namespace CompanyApiTest
 
             // Then
             Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
-            Assert.Equal(company1.Name, responseCompanies[0].Name);
-            Assert.Equal(company2.Name, responseCompanies[1].Name);
+            Assert.Equal(companyGiven1.Name, responseCompanies[0].Name);
+            Assert.Equal(companyGiven2.Name, responseCompanies[1].Name);
         }
 
         [Fact]
@@ -111,7 +93,7 @@ namespace CompanyApiTest
         {
             // Given
             await ClearDataAsync();
-            CreateCompanyRequest companyRequest = new CreateCompanyRequest("kevin");
+            CreateCompanyRequest companyRequest = new CreateCompanyRequest("BlueSky Digital Media");
             var tempMessage = await httpClient.PostAsJsonAsync("/api/companies", companyRequest);
             var createdCompany = await tempMessage.Content.ReadFromJsonAsync<Company>();
 
@@ -121,7 +103,7 @@ namespace CompanyApiTest
 
             // Then
             Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
-            Assert.Equal("kevin", responseCompany.Name);
+            Assert.Equal("BlueSky Digital Media", responseCompany.Name);
         }
 
         [Fact]
@@ -129,7 +111,7 @@ namespace CompanyApiTest
         {
             // Given
             await ClearDataAsync();
-            CreateCompanyRequest companyRequest = new CreateCompanyRequest("kevin");
+            CreateCompanyRequest companyRequest = new CreateCompanyRequest("BlueSky Digital Media");
             await httpClient.PostAsJsonAsync("/api/companies", companyRequest);
 
             string wrongId = "123456";
