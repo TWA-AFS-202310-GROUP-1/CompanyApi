@@ -55,5 +55,17 @@ namespace CompanyApi.Controllers
             List<Company> companiesResult = companies.GetRange(startIndex, endIndex - 2);
             return Ok(companiesResult);
         }
+
+        [HttpPut("{Id}")]
+        public ActionResult<Company> UpdateName(string Id, CreateCompanyRequest request)
+        {
+            Company? company = companies.FirstOrDefault(c => c.Id.Equals(Id));
+            if (company == null)
+            {
+                return NotFound();
+            }
+            company.Name = request.Name;
+            return Ok(company);
+        }
     }
 }

@@ -127,13 +127,53 @@ namespace CompanyApiTest
             }
 
             //When
-            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies/details" + "?pageSize=2&&pageIndex=2");
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies/details" + "?pageSize=2&pageIndex=2");
             var companies = await httpResponseMessage.Content.ReadFromJsonAsync<List<Company>>();
 
             //Then
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
             Assert.Equal(2, companies.Count);
             Assert.Equal("company3", companies[0].Name);
             Assert.Equal("company4", companies[1].Name);
+        }
+
+        [Fact]
+        public async Task Should_update_name_of_existing_company_when_given_id()
+        {
+            //Given
+            await ClearDataAsync();
+            CreateCompanyRequest company = new CreateCompanyRequest("company1");
+            CreateCompanyRequest newCompany = new CreateCompanyRequest("company2");
+            
+            //When
+            HttpResponseMessage postResponseMessage = await httpClient.PostAsJsonAsync("api/companies", company);
+            var companyReceive = await postResponseMessage.Content.ReadFromJsonAsync<Company>();
+            var companyContent = SerializeObjectToContent(newCompany);
+            HttpResponseMessage httpResponseMessage = await httpClient.PutAsync("/api/companies/"+companyReceive.Id.ToString(), companyContent);
+            var companyReceived = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            //Then
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
+            Assert.Equal("company2", companyReceived.Name);
+        }
+
+        [Fact]
+        public async Task Should_update_company_fail_when_company_not_exist()
+        {
+            //Given
+            await ClearDataAsync();
+            CreateCompanyRequest company = new CreateCompanyRequest("company1");
+            CreateCompanyRequest newCompany = new CreateCompanyRequest("company2");
+
+            //When
+            HttpResponseMessage postResponseMessage = await httpClient.PostAsJsonAsync("api/companies", company);
+            var companyReceive = await postResponseMessage.Content.ReadFromJsonAsync<Company>();
+            var companyContent = SerializeObjectToContent(newCompany);
+            HttpResponseMessage httpResponseMessage = await httpClient.PutAsync("/api/companies/error" + companyReceive.Id.ToString(), companyContent);
+            var companyReceived = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            //Then
+            Assert.Equal(HttpStatusCode.NotFound, httpResponseMessage.StatusCode);
         }
 
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
