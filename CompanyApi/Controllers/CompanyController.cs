@@ -49,6 +49,21 @@ namespace CompanyApi.Controllers
             return StatusCode(StatusCodes.Status201Created, companyCreated);
         }
 
+        [HttpPut("{id}")]
+        public ActionResult UpdateCompany(string id, [FromBody] Company updatedCompany)
+        {
+            var company = companies.FirstOrDefault(c => c.Id == id);
+            if (company == null)
+            {
+                return NotFound();
+            }
+
+            company.Name = updatedCompany.Name;
+
+            return NoContent(); 
+        }
+
+
         [HttpDelete]
         public void ClearData()
         { 

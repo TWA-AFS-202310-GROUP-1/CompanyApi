@@ -145,6 +145,27 @@ namespace CompanyApiTest
             Assert.Equal(pageSize, companiesReturned.Count);
         }
 
+        [Fact]
+        public async Task Should_update_company_info_and_return_204_when_given_correct_id_and_details()
+        {
+            await ClearDataAsync();
+            Company companyGiven = new Company("Initial Company Name");
+            HttpResponseMessage initialPostResponse = await httpClient.PostAsync("/api/companies", SerializeObjectToContent(companyGiven));
+            Company? companyCreated = await DeserializeTo<Company>(initialPostResponse);
+            string? givenId = companyCreated.Id;
+
+            Company updatedCompany = new Company("Updated Company Name") { Id = givenId };
+
+            HttpResponseMessage httpResponseMessage = await httpClient.PutAsync($"/api/companies/{givenId}", SerializeObjectToContent(updatedCompany));
+
+            Assert.Equal(HttpStatusCode.NoContent, httpResponseMessage.StatusCode);
+
+            HttpResponseMessage getResponse = await httpClient.GetAsync($"/api/companies/{givenId}");
+            Company? companyAfterUpdate = await DeserializeTo<Company>(getResponse);
+
+            Assert.Equal("Updated Company Name", companyAfterUpdate.Name);
+        }
+
 
 
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
