@@ -26,6 +26,17 @@ namespace CompanyApi.Controllers
             return Ok(company);
         }
 
+        [HttpGet("page/{pageSize}/{pageIndex}")]
+        public ActionResult<List<Company>> GetCompaniesByPage(int pageSize, int pageIndex)
+        {
+            int skip = (pageIndex - 1) * pageSize;
+
+            var pageOfCompanies = companies.Skip(skip).Take(pageSize).ToList();
+
+            return Ok(pageOfCompanies);
+        }
+
+
         [HttpPost]
         public ActionResult<Company> Create(CreateCompanyRequest request)
         {
@@ -43,5 +54,7 @@ namespace CompanyApi.Controllers
         { 
             companies.Clear();
         }
+
+
     }
 }
