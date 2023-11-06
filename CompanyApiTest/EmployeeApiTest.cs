@@ -42,6 +42,41 @@ namespace CompanyApiTest
             Assert.Equal(employeeGiven.Name, employeeCreated.Name);
         }
 
+        [Fact]
+        public async Task Should_return_bad_reqeust_when_add_employee_given_an_existed_employee_name()
+        {
+            // Given
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Google");
+            CreateEmployeeRequest employeeGiven = new CreateEmployeeRequest("Jack");
+
+            // When
+            HttpResponseMessage httpResponseMessageCompany = await httpClient.PostAsJsonAsync<CreateCompanyRequest>("/api/companies", companyGiven);
+            Company companyPost = await DeserializeTo<Company>(httpResponseMessageCompany);
+            await httpClient.PostAsJsonAsync($"/api/companies/{companyPost.Id}/employees", employeeGiven);
+            HttpResponseMessage httpResponseMessageEmployee = await httpClient.PostAsJsonAsync($"/api/companies/{companyPost.Id}/employees", employeeGiven);
+
+            // Then
+            Assert.Equal(HttpStatusCode.BadRequest, httpResponseMessageEmployee.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_return_bad_reqeust_when_add_employee_given_an_employee_with_unknown_field()
+        {
+            // Given
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Google");
+            StringContent content = new StringContent("{\"unknownField\": \"Jack\"}", Encoding.UTF8, "application/json");
+
+            // When
+            HttpResponseMessage httpResponseMessageCompany = await httpClient.PostAsJsonAsync<CreateCompanyRequest>("/api/companies", companyGiven);
+            Company companyPost = await DeserializeTo<Company>(httpResponseMessageCompany);
+            HttpResponseMessage httpResponseMessage = await httpClient.PostAsync($"/api/companies/{companyPost.Id}/employees", content);
+
+            // Then
+            Assert.Equal(HttpStatusCode.BadRequest, httpResponseMessage.StatusCode);
+        }
+
 
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {

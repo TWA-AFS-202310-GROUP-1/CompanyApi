@@ -76,6 +76,10 @@ namespace CompanyApi.Controllers
             {
                 return NotFound(companyID);
             }
+            if (company.Employees.Exists(e => e.Name == request.Name))
+            {
+                return BadRequest();
+            }
             Employee employeeAdded = new Employee(request.Name);
             company.Employees.Add(employeeAdded);
             return StatusCode(StatusCodes.Status201Created, employeeAdded);
