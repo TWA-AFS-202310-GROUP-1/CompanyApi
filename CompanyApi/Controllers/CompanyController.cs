@@ -25,5 +25,13 @@ namespace CompanyApi.Controllers
         { 
             companies.Clear();
         }
+
+        [HttpGet]
+        public List<Company> Get()
+        {
+            return companies;
+        }
+
+        
     }
 }
