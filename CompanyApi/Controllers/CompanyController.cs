@@ -42,6 +42,18 @@ namespace CompanyApi.Controllers
             }
             return Ok(company);
         }
-        
+
+        [HttpGet("details")]
+        public ActionResult<List<Company>> GetXCompaniesFromYPage(int pageSize, int pageIndex)
+        {
+            int startIndex = (pageIndex-1) * pageSize;
+            int endIndex = pageIndex * pageSize > companies.Count ? companies.Count : pageIndex * pageSize;
+            if (startIndex >= companies.Count)
+            {
+                return NotFound();
+            }
+            List<Company> companiesResult = companies.GetRange(startIndex, endIndex - 2);
+            return Ok(companiesResult);
+        }
     }
 }

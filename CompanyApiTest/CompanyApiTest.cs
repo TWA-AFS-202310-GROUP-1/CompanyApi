@@ -115,6 +115,27 @@ namespace CompanyApiTest
             Assert.Equal(HttpStatusCode.NotFound, responseMessage.StatusCode);
         }
 
+        [Fact]
+        public async Task Should_return_X_companies_from_Y_Page_when_given_X_and_Y()
+        {
+            //Given
+            await ClearDataAsync();
+            for(var i = 0; i < 4; i++)
+            {
+                CreateCompanyRequest newCompany = new CreateCompanyRequest("company"+(i+1).ToString());
+                await httpClient.PostAsJsonAsync("api/companies", newCompany);
+            }
+
+            //When
+            HttpResponseMessage httpResponseMessage = await httpClient.GetAsync("/api/companies/details" + "?pageSize=2&&pageIndex=2");
+            var companies = await httpResponseMessage.Content.ReadFromJsonAsync<List<Company>>();
+
+            //Then
+            Assert.Equal(2, companies.Count);
+            Assert.Equal("company3", companies[0].Name);
+            Assert.Equal("company4", companies[1].Name);
+        }
+
         private async Task<T?> DeserializeTo<T>(HttpResponseMessage httpResponseMessage)
         {
             string response = await httpResponseMessage.Content.ReadAsStringAsync();
