@@ -36,7 +36,7 @@ namespace CompanyApi.Controllers
             {
                 return Ok(companies);
             }
-            var resultList = companies.Skip((int)((pageIndex - 1) * pageSize)).Take((int)pageSize).ToList(); // PageIndex start with 1
+            var resultList = companies.Skip((int)((pageIndex - 1) * pageSize)).Take((int)pageSize).ToList();
             return Ok(resultList);
         }
 
@@ -62,6 +62,24 @@ namespace CompanyApi.Controllers
             res.Name = request.Name;
 
             return Ok(res);
+        }
+
+        [HttpPost("{companyID}")]
+        public ActionResult<Employee> Create(string companyID, CreateEmployeeRequest request)
+        {
+            if (!companies.Exists(company => company.Id == companyID))
+            {
+                return NotFound();
+            }
+            Company? company = companies.FirstOrDefault(x => x.Id == companyID);
+
+            if (company.Employees.Exists(employee => employee.Name.Equals(request.Name)))
+            {
+                return BadRequest();
+            }
+            Employee employeeCreated = new Employee(request.Name, request.Salary);
+            company.Employees.Add(employeeCreated);
+            return StatusCode(StatusCodes.Status201Created, employeeCreated);
         }
     }
 }

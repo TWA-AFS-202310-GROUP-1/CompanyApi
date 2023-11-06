@@ -1,6 +1,7 @@
 using CompanyApi;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
+using NuGet.Frameworks;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -133,7 +134,7 @@ namespace CompanyApiTest
         {
             await ClearDataAsync();
             int pageSize = 2;
-            int pageIndex = 0;
+            int pageIndex = 1; //pageIndex start with 1
 
             for (int i = 0; i < 3; i++)
             {
@@ -171,10 +172,66 @@ namespace CompanyApiTest
         [Fact]
         public async Task Should_return_status_404_when_put_given_not_exist()
         {
+            await ClearDataAsync();
             CreateCompanyRequest companyUpdateGiven = new CreateCompanyRequest("Meta");
             HttpResponseMessage putResponseMessage = await httpClient.PutAsJsonAsync($"/api/companies/1", companyUpdateGiven);
 
             Assert.Equal(HttpStatusCode.NotFound, putResponseMessage.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_return_created_employee_with_status_201_when_create_employee_given_a_employee_under_existing_company()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Google");
+            HttpResponseMessage postCompanyResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+            var companyPost = await postCompanyResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            CreateEmployeeRequest employeeGiven = new CreateEmployeeRequest("Amy", 10);
+            HttpResponseMessage postEmployeeResponseMessage = await httpClient.PostAsJsonAsync($"/api/companies/{companyPost.Id}", employeeGiven);
+            var employeePost = await postEmployeeResponseMessage.Content.ReadFromJsonAsync<Employee>();
+
+            Assert.Equal(HttpStatusCode.Created, postEmployeeResponseMessage.StatusCode);
+            Assert.Equal("Amy", employeePost.Name);
+        }
+
+        [Fact]
+        public async Task Should_return_bad_reqeust_when_create_employee_given_a_existed_employee_name()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Google");
+            HttpResponseMessage postCompanyResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+            var companyPost = await postCompanyResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            CreateEmployeeRequest employeeGiven = new CreateEmployeeRequest("Amy", 10);
+            await httpClient.PostAsJsonAsync($"/api/companies/{companyPost.Id}", employeeGiven);
+            HttpResponseMessage postEmployeeResponseMessage = await httpClient.PostAsJsonAsync($"/api/companies/{companyPost.Id}", employeeGiven);
+
+            Assert.Equal(HttpStatusCode.BadRequest, postEmployeeResponseMessage.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_return_not_found_when_create_employee_given_not_existed_company()
+        {
+            await ClearDataAsync();
+            CreateEmployeeRequest employeeGiven = new CreateEmployeeRequest("Amy", 10);
+            HttpResponseMessage postEmployeeResponseMessage = await httpClient.PostAsJsonAsync($"/api/companies/123", employeeGiven);
+
+            Assert.Equal(HttpStatusCode.NotFound, postEmployeeResponseMessage.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_return_bad_request_when_create_employee_given_a_employee_with_unknown_field()
+        {
+            await ClearDataAsync();
+            CreateCompanyRequest companyGiven = new CreateCompanyRequest("Google");
+            HttpResponseMessage postCompanyResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+            var companyPost = await postCompanyResponseMessage.Content.ReadFromJsonAsync<Company>();
+
+            StringContent content = new StringContent("{\"unknownField\": \"BlueSky Digital Media\"}", Encoding.UTF8, "application/json");
+            HttpResponseMessage postEmployeeResponseMessage = await httpClient.PostAsJsonAsync($"/api/companies/{companyPost.Id}", content);
+
+            Assert.Equal(HttpStatusCode.BadRequest, postEmployeeResponseMessage.StatusCode);
         }
     }
 }
