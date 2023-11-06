@@ -18,7 +18,7 @@ namespace CompanyApiTest
         }
 
         [Fact]
-        public async Task Should_return_created_company_with_status_201_when_create_cpmoany_given_a_company_name()
+        public async Task Should_return_created_company_with_status_201_when_create_copmany_given_a_company_name()
         {
             // Given
             await ClearDataAsync();

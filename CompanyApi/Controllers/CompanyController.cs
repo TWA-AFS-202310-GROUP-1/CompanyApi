@@ -67,5 +67,18 @@ namespace CompanyApi.Controllers
             company.Name = request.Name;
             return Ok(company);
         }
+
+        [HttpPost("{companyID}/employees")]
+        public ActionResult<Employee> AddEmployee(string companyID, CreateEmployeeRequest request)
+        {
+            Company company = companies.FirstOrDefault(c => c.Id == companyID);
+            if (company == null)
+            {
+                return NotFound(companyID);
+            }
+            Employee employeeAdded = new Employee(request.Name);
+            company.Employees.Add(employeeAdded);
+            return StatusCode(StatusCodes.Status201Created, employeeAdded);
+        }
     }
 }
