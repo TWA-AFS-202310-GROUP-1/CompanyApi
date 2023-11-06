@@ -56,5 +56,22 @@ namespace CompanyApi.Controllers
                 return Ok(companiesInSpecificPage);
             }
         }
+
+        [HttpPost("{id}")]
+        public ActionResult<Employee> AddEmployee(CreateEmployeeRequest request, string id)
+        {
+            Company company = companies.Find(x => x.Id == id);
+            if(company==null)
+            {
+                return NotFound();
+            }
+            if ((company.Employees.Find(x => x.Name == request.Name)) != null)
+            {
+                return BadRequest();
+            }
+            Employee newEmployee = new Employee(request.Name);
+            company.Employees.Add(newEmployee);
+            return Ok(newEmployee);
+        }
     }
 }

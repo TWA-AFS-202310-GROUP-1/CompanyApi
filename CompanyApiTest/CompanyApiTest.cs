@@ -145,5 +145,24 @@ namespace CompanyApiTest
             Assert.Equal("Green", responseCompanies[0].Name);
             Assert.Equal("Black", responseCompanies[1].Name);
         }
+
+        [Fact]
+        public async Task Should_return_new_employee_with_status_200_when_post_given_company_Id_and_a_employee()
+        {
+            // Given
+            await ClearDataAsync();
+            CreateCompanyRequest companyRequest = new CreateCompanyRequest("BlueSky");
+            var tempMessage = await httpClient.PostAsJsonAsync("/api/companies", companyRequest);
+            var createdCompany = await tempMessage.Content.ReadFromJsonAsync<Company>();
+
+            // When
+            var httpResponseMessage = await httpClient.PostAsJsonAsync
+                ($"api/companies/{createdCompany.Id}", new CreateEmployeeRequest("Kevin"));
+            var addedEmployee = await httpResponseMessage.Content.ReadFromJsonAsync<Employee>();
+
+            // Then
+            Assert.Equal(HttpStatusCode.OK, httpResponseMessage.StatusCode);
+            Assert.Equal("Kevin", addedEmployee.Name);
+        }
     }
 }
