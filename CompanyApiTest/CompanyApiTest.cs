@@ -158,7 +158,7 @@ namespace CompanyApiTest
             List<Company>? company = await DeserializeTo<List<Company>>(httpResponseMessage4);
 
             Assert.Equal(HttpStatusCode.OK, httpResponseMessage4.StatusCode);
-            Assert.Equal(companyGiven2.Name, company[0].Name);
+            Assert.Equal(companyGiven1.Name, company[0].Name);
         }
 
         [Fact]
@@ -239,6 +239,49 @@ namespace CompanyApiTest
             var httpResponseMessage = await httpClient.PostAsJsonAsync($"/api/companies/{employeeGiven.CompanyId}/employees", employeeGiven);
 
             // Then
+            Assert.Equal(HttpStatusCode.NotFound, httpResponseMessage.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_return_no_content_when_delete_employee_given_existing_employee_id()
+        {
+            // Given
+            await ClearDataAsync();
+            var companyGiven = new CreateCompanyRequest
+            {
+                Name = "Company 1"
+            };
+            var httpResponseMessage = await httpClient.PostAsJsonAsync("/api/companies", companyGiven);
+            var companyCreated = await httpResponseMessage.Content.ReadFromJsonAsync<Company>();
+            Assert.NotNull(companyCreated);
+            Assert.NotNull(companyCreated.Id);
+            var employeeGiven = new CreateEmployeeRequest
+            {
+                Name = "Peter",
+                Salary = 5000,
+                CompanyId = companyCreated.Id
+            };
+            httpResponseMessage = await httpClient.PostAsJsonAsync($"/api/companies/{companyCreated.Id}/employees", employeeGiven);
+            var employeeCreated = await httpResponseMessage.Content.ReadFromJsonAsync<Employee>();
+            Assert.NotNull(employeeCreated);
+            Assert.NotNull(employeeCreated.Id);
+            var companyAll = await httpClient.GetFromJsonAsync<List<Company>>("/api/companies");
+
+            // When
+            httpResponseMessage = await httpClient.DeleteAsync($"/api/companies/{companyCreated.Id}/employees/{employeeCreated.Id}");
+
+            // Then
+            Assert.Equal(HttpStatusCode.NoContent, httpResponseMessage.StatusCode);
+        }
+
+        [Fact]
+        public async Task Should_return_404_when_delete_employee_given_fake_company_id()
+        {
+            // Given
+            await ClearDataAsync();
+            var httpResponseMessage = await httpClient.DeleteAsync($"/api/companies/{Guid.NewGuid().ToString()}/employees/{Guid.NewGuid().ToString()}");
+
+            // When
             Assert.Equal(HttpStatusCode.NotFound, httpResponseMessage.StatusCode);
         }
     }
